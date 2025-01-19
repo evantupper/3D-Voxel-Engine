@@ -1,8 +1,0 @@
-#BlueJ class context
-comment0.params=colorPassed\ sizePassed\ layers\ strength\ target\ x\ y\ ras
-comment0.target=Light(int,\ int,\ int,\ float,\ java.lang.String,\ int,\ int,\ float)
-comment1.params=targetX\ targetY
-comment1.target=void\ update(int,\ int)
-comment2.params=
-comment2.target=void\ render()
-numComments=3
