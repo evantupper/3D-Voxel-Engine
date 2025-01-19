@@ -1,33 +1,23 @@
-import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
-import org.lwjgl.system.*;
-
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-
-import static org.lwjgl.glfw.Callbacks.*;
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryStack.*;
-
-import java.util.LinkedHashSet;
-
-import tupper.tsdn.PacketManager;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.net.URLDecoder;
-
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
-import java.nio.*;
+import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.system.MemoryStack.*;
+
+import java.util.LinkedHashSet;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.net.URLDecoder;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
+import tupper.tsdn.PacketManager;
 
 public class Main3D {
     private int frames;
@@ -38,7 +28,7 @@ public class Main3D {
 
     private static final int TARGET_FPS = 60;
     private static final int TARGET_TIME = 1000 / TARGET_FPS;
-    
+
     private static final boolean MULTIPLAYER = false;
 
     public static long window;
@@ -139,10 +129,8 @@ public class Main3D {
 
     private void loop() {
         long lastTime = System.nanoTime();
-        long timer = System.currentTimeMillis();
         int frames = 0;
-        int oframes = 0;
-        
+
         int multiplayer_ticks = 0;
         final int MULTIPLAYER_UPDATE_TIME_IN_TICKS = 5;
 
@@ -172,15 +160,17 @@ public class Main3D {
                 for (int i = 0; i < pam.packets.size(); i++) {
                     if (pam.packets.get(i).getID() == pam.getSystemID())
                         continue;
+                        
                     try {
                         String data = URLDecoder.decode(pam.packets.get(i).getData(), "UTF-8");
                         String[] parsed = data.split(" ");
-                        ExternalPlayer3D pl = new ExternalPlayer3D() {{
-                                    x = -Float.parseFloat(parsed[0]);
-                                    y = -Float.parseFloat(parsed[1]);
-                                    z = -Float.parseFloat(parsed[2]);
-                                }};
-                        pl.render();
+                        
+                        new ExternalPlayer3D() {{
+                                x = -Float.parseFloat(parsed[0]);
+                                y = -Float.parseFloat(parsed[1]);
+                                z = -Float.parseFloat(parsed[2]);
+                                render();
+                            }};
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -192,13 +182,13 @@ public class Main3D {
                 }
 
                 pam.force();
-                
+
                 multiplayer_ticks = 0;
             }
             else
                 multiplayer_ticks++;
 
-            //Fps updates or wtv
+            //FPS related stuff
             {
                 long currentTime = System.nanoTime();
                 elapsedTime = currentTime - lastTime;
