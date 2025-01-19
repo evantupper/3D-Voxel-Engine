@@ -33,9 +33,6 @@ public class Player3D {
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
 
-    float near = 0.7f;   
-    float far = 100f;
-
     private int sky_color = 0;
     private int sky_color_max = 3;
     private int buffer_color = 0;
@@ -58,36 +55,11 @@ public class Player3D {
 
     public void update() {
         input();
-
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-
-        float aspect = (float) WIDTH / (float) HEIGHT;
-        glFrustum(-aspect, aspect, -1.0f, 1.0f, near, far);
-        glEnable(GL_DEPTH_TEST);
-
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
+        
         glRotatef(pitch, 1.0f, 0.0f, 0.0f);  
         glRotatef(yaw, 0.0f, 1.0f, 0.0f);   
 
         glTranslatef(x, y - 1.6f, z); 
-
-        //         input();
-        // 
-        //         glMatrixMode(GL_PROJECTION);
-        //         glLoadIdentity();
-        //         float aspect = (float) WIDTH / (float) HEIGHT;
-        //         glFrustum(-aspect, aspect, -1.0f, 1.0f, 1.0f, 100.0f);
-        // 
-        //         glMatrixMode(GL_MODELVIEW);
-        //         glLoadIdentity();
-        // 
-        //         glRotatef(pitch, 1.0f, 0.0f, 0.0f);
-        //         glRotatef(yaw, 0.0f, 1.0f, 0.0f);  
-        //         glTranslatef(x, y, z);     
-
-        //System.out.println("x:"+x + " y:" + y + " z:" + z + " yaw:" + yaw );
     }
 
     public void input() {
@@ -97,16 +69,6 @@ public class Player3D {
             glfwSetInputMode(Main3D.window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             Main3D.pam.wipe();
             System.exit(0);
-        }
-        
-        if (glfwGetKey(Main3D.window, GLFW_KEY_I) == GLFW_PRESS) {
-            near += 0.01f;
-        }
-        if (glfwGetKey(Main3D.window, GLFW_KEY_O) == GLFW_PRESS) {
-            near -= 0.01f;
-        }
-        if (glfwGetKey(Main3D.window, GLFW_KEY_P) == GLFW_PRESS) {
-            near = 1f;
         }
 
         if (glfwGetKey(Main3D.window, GLFW_KEY_W) == GLFW_PRESS) {
@@ -211,13 +173,6 @@ public class Player3D {
                 continue;   
             }
 
-            //Checking ground status
-            // if (y + vel_y - 0.01f >= -vox.y - player_height - vox.voxel_width 
-            // && vel_z + z < -vox.z + player_width + vox.voxel_width && vel_z + z > -vox.z - player_width - vox.voxel_width 
-            // && vel_x + x < -vox.x + player_width + vox.voxel_width && vel_x + x > -vox.x - player_width - vox.voxel_width) {
-            // isGrounded = true;
-            // }
-
             //Collision testing
             boolean shouldTestSides = (y < -vox.y + vox.voxel_width + player_height * 2 && y > -vox.y - vox.voxel_width);
             if (!shouldTestSides) {
@@ -256,10 +211,7 @@ public class Player3D {
         y += vel_y;
         z += vel_z;
 
-        //         vel_x = 0;
-        //         vel_y = 0;
-        //         vel_z = 0;
-        //Velocity Dampeners
+        
         if (!isGrounded) {
             vel_y += 0.01;
         }
@@ -275,11 +227,6 @@ public class Player3D {
         vel_x = Math.max(Math.min(vel_x, max_vel_x), -max_vel_x);
         vel_y = Math.max(Math.min(vel_y, max_vel_y), -max_vel_y);
         vel_z = Math.max(Math.min(vel_z, max_vel_z), -max_vel_z);
-
-        //Robot rbr = new Robot();
-        int newMouseX = 1;
-        if (1 == 1) {
-        }
         
         if (glfwGetKey(Main3D.window, GLFW_KEY_UP) == GLFW_PRESS) pitch -= turn_speed;
         if (glfwGetKey(Main3D.window, GLFW_KEY_DOWN) == GLFW_PRESS) pitch += turn_speed;
@@ -287,7 +234,5 @@ public class Player3D {
         if (glfwGetKey(Main3D.window, GLFW_KEY_RIGHT) == GLFW_PRESS) yaw += turn_speed;
 
         pitch = Math.max(-89.0f, Math.min(89.0f, pitch));
-
-        //System.out.println(isGrounded + " :: " + vel_x + " - " + vel_y + " - " + vel_z);
     }
 }

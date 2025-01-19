@@ -47,17 +47,12 @@ public class Voxel {
     }
 
     public void render() {
-        // Rotate cube
-        glPushMatrix();
-        //glRotatef(angle, 1.0f, 1.0f, 0.0f);
-
-        // Draw cube
         glBegin(GL_QUADS);
 
         float distanceMultiplier = Math.max(Math.min(1.0f, 1.0f - (distance / render_distance)), 0.0f);
 
         // Front face
-        {
+        if (render_face[0]) {
             float face_red = 1.0f;
             float face_green = 0.0f;
             float face_blue = 0.0f;
@@ -79,7 +74,7 @@ public class Voxel {
         }
 
         // Back face
-        {
+        if (render_face[1]) {
             float face_red = 0.0f;
             float face_green = 1.0f;
             float face_blue = 0.0f;
@@ -101,7 +96,7 @@ public class Voxel {
         }
 
         // Top face
-        {
+        if (render_face[2]) {
             float face_red = 0.0f;
             float face_green = 0.0f;
             float face_blue = 1.0f;
@@ -123,7 +118,7 @@ public class Voxel {
         }
         
         // Bottom face
-        {
+        if (render_face[3]) {
             float face_red = 1.0f;
             float face_green = 1.0f;
             float face_blue = 0.0f;
@@ -145,7 +140,7 @@ public class Voxel {
         }
 
         // Right face
-        {
+        if (render_face[4]) {
             float face_red = 1.0f;
             float face_green = 0.0f;
             float face_blue = 1.0f;
@@ -167,7 +162,7 @@ public class Voxel {
         }
 
         // Left face
-        {
+        if (render_face[5]) {
             float face_red = 0.0f;
             float face_green = 1.0f;
             float face_blue = 1.0f;
@@ -189,8 +184,6 @@ public class Voxel {
         }
 
         glEnd();
-        glPopMatrix();
-
     }
 
     public float[] getLocation() {
