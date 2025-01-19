@@ -1,0 +1,14 @@
+#BlueJ class context
+comment0.params=
+comment0.target=Enemy()
+comment1.params=hpInstead
+comment1.target=Enemy(int)
+comment2.params=
+comment2.target=void\ update()
+comment3.params=
+comment3.target=void\ render()
+comment4.params=
+comment4.target=void\ shapeCollisions()
+comment5.params=
+comment5.target=void\ move()
+numComments=6
