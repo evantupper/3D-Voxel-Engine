@@ -30,7 +30,9 @@ public class Main3D {
     private static final int TARGET_TIME = 1000 / TARGET_FPS;
 
     private static final boolean MULTIPLAYER = false;
-
+    public static int textID;
+    public static int textID2;
+    
     public static long window;
     public static LinkedHashSet<Voxel> voxelSet;
     public Player3D player;
@@ -87,25 +89,42 @@ public class Main3D {
         player = new Player3D(0.0f, 0.0f, -6.0f);
 
         {
-            voxelSet.add(new Voxel(0,0,0));
-            voxelSet.add(new Voxel(2,2,2));
-            voxelSet.add(new Voxel(2,-4.5f,2));
+            
+            try {
+                textID = Voxel.loadTexture(".\\e.png");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            
+            
+            voxelSet.add(new Voxel(0,0,0) {{textureID = textID;}});
+            voxelSet.add(new Voxel(2,2,2) {{textureID = textID;}});
+            voxelSet.add(new Voxel(2,-4.5f,2) {{textureID = textID;}});
+            voxelSet.add(new Voxel(3,-4f,2) {{textureID = textID;}});
+            
+            textID2 = 0;
+            try {
+                 textID2 = Voxel.loadTexture(".\\e.png");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             for (int i = -3; i < 50; i++) {
                 for (int j = -3; j < 50; j++) {
                     if (i > 30 && j > 30) {
-                        voxelSet.add(new Voxel(i,i-35,j));
+                        voxelSet.add(new Voxel(i,i-35,j) {{textured_face[0] = textID2;}});
                     }
                     else
-                        voxelSet.add(new Voxel(i,-5,j));
+                        voxelSet.add(new Voxel(i,-5,j) {{textureID = textID2;}});
 
                 }
             }
             for (int j = 0; j < 50; j++) {
-                voxelSet.add(new Voxel(4,-4,j));
+                voxelSet.add(new Voxel(4,-4,j) {{textureID = textID2;}});
             }
             for (int j = 0; j < 50; j++) {
-                voxelSet.add(new Voxel(j,-4,4));
+                voxelSet.add(new Voxel(j,-4,4) {{textureID = textID2;}});
             }
         }
 
@@ -149,7 +168,7 @@ public class Main3D {
 
             player.update();
             for (Voxel vox : voxelSet) {
-                vox.update();
+                vox.renderf();
             }
 
             if (MULTIPLAYER && multiplayer_ticks == MULTIPLAYER_UPDATE_TIME_IN_TICKS)
@@ -160,11 +179,11 @@ public class Main3D {
                 for (int i = 0; i < pam.packets.size(); i++) {
                     if (pam.packets.get(i).getID() == pam.getSystemID())
                         continue;
-                        
+
                     try {
                         String data = URLDecoder.decode(pam.packets.get(i).getData(), "UTF-8");
                         String[] parsed = data.split(" ");
-                        
+
                         new ExternalPlayer3D() {{
                                 x = -Float.parseFloat(parsed[0]);
                                 y = -Float.parseFloat(parsed[1]);

@@ -51,20 +51,20 @@ public class Player3D {
         vel_x = 0;
         vel_y = 0;
         vel_z = 0;
-        
+
         glfwSetCursorPosCallback(Main3D.window, (window, xpos, ypos) -> {
-            float dx = (float) xpos - WIDTH / 2;
-            float dy = (float) ypos - HEIGHT / 2;
-            yaw += dx * 0.1f;
-            pitch += dy * 0.1f;
-            glfwSetCursorPos(window, WIDTH / 2, HEIGHT / 2);
-        });
+                float dx = (float) xpos - WIDTH / 2;
+                float dy = (float) ypos - HEIGHT / 2;
+                yaw += dx * 0.1f;
+                pitch += dy * 0.1f;
+                glfwSetCursorPos(window, WIDTH / 2, HEIGHT / 2);
+            });
         glfwSetInputMode(Main3D.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 
     public void update() {
         input();
-        
+
         glRotatef((float)pitch, 1.0f, 0.0f, 0.0f);  
         glRotatef((float)yaw, 0.0f, 1.0f, 0.0f);   
 
@@ -80,10 +80,6 @@ public class Player3D {
             System.exit(0);
         }
 
-        if (glfwGetKey(Main3D.window, GLFW_KEY_W) == GLFW_PRESS) {
-            vel_z += Math.cos(radian_yaw) * hoz_speed;
-            vel_x += -Math.sin(radian_yaw) * hoz_speed;
-        }
         if (glfwGetKey(Main3D.window, GLFW_KEY_S) == GLFW_PRESS) {
             vel_z += -Math.cos(radian_yaw) * hoz_speed * 0.7f;
             vel_x += Math.sin(radian_yaw) * hoz_speed * 0.7f;
@@ -96,17 +92,17 @@ public class Player3D {
             vel_z += -Math.sin(radian_yaw) * hoz_speed * 0.95f; 
             vel_x += -Math.cos(radian_yaw) * hoz_speed * 0.95f;
         }
+        if (glfwGetKey(Main3D.window, GLFW_KEY_W) == GLFW_PRESS) {
+            vel_z += Math.cos(radian_yaw) * hoz_speed;
+            vel_x += -Math.sin(radian_yaw) * hoz_speed;
+        }
         if (glfwGetKey(Main3D.window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
             vel_z *= 1.5f;
             vel_x *= 1.5f;
         }
-        
-        
-        
-        if (glfwGetKey(Main3D.window, GLFW_KEY_SPACE) == GLFW_PRESS && isGrounded) {
-            vel_y += -vert_speed * 3;
-            vel_x *= 1.2f;
-            vel_z *= 1.2f;
+
+        if (isGrounded && glfwGetKey(Main3D.window, GLFW_KEY_SPACE) == GLFW_PRESS ) {
+            jump();
         }
         if (glfwGetKey(Main3D.window, GLFW_KEY_TAB) == GLFW_PRESS) {
             vel_y += -vert_speed;
@@ -115,47 +111,31 @@ public class Player3D {
             vel_y += vert_speed;
         }
 
-        
         if (-y < -10)
             sky_color = 0;
         else if (-y < 50)
             sky_color = 1;
         else
             sky_color = 2;
-            
-        if (buffer_color != sky_color) { 
-            buffer_color = sky_color;
-            switch (sky_color) {
-                case 0:
-                Voxel.red_sky_color = 0 / 255.0f;
-                Voxel.green_sky_color = 0 / 255.0f;
-                Voxel.blue_sky_color = 0 / 255.0f;
 
-                Voxel.red_fog_color = 0 / 255.0f;
-                Voxel.green_fog_color = 0 / 255.0f;
-                Voxel.blue_fog_color = 0 / 255.0f;
-                break;
+        
+        if (glfwGetKey(Main3D.window, GLFW_KEY_MINUS) == GLFW_PRESS) {
+            Voxel.red_sky_color = 0 / 255.0f;
+            Voxel.green_sky_color = 0 / 255.0f;
+            Voxel.blue_sky_color = 0 / 255.0f;
 
-                case 1:
-                Voxel.red_sky_color = 182 / 255.0f;
-                Voxel.green_sky_color = 228 / 255.0f;
-                Voxel.blue_sky_color = 240 / 255.0f;
+            Voxel.red_fog_color = 0 / 255.0f;
+            Voxel.green_fog_color = 0 / 255.0f;
+            Voxel.blue_fog_color = 0 / 255.0f;
+        }
+        if (glfwGetKey(Main3D.window, GLFW_KEY_EQUAL) == GLFW_PRESS) {
+            Voxel.red_sky_color = 182 / 255.0f;
+            Voxel.green_sky_color = 228 / 255.0f;
+            Voxel.blue_sky_color = 240 / 255.0f;
 
-                Voxel.red_fog_color = 217 / 255.0f;
-                Voxel.green_fog_color = 236 / 255.0f;
-                Voxel.blue_fog_color = 241 / 255.0f;
-                break;
-
-                case 2:
-                Voxel.red_sky_color = 155 / 255.0f;
-                Voxel.green_sky_color = 64 / 255.0f;
-                Voxel.blue_sky_color = 50 / 255.0f;
-
-                Voxel.red_fog_color = 202 / 255.0f;
-                Voxel.green_fog_color = 104 / 255.0f;
-                Voxel.blue_fog_color = 65 / 255.0f;
-                break;
-            }
+            Voxel.red_fog_color = 217 / 255.0f;
+            Voxel.green_fog_color = 236 / 255.0f;
+            Voxel.blue_fog_color = 241 / 255.0f;
         }
 
         isGrounded = false;
@@ -168,7 +148,7 @@ public class Player3D {
             float sqr2 = (float) Math.sqrt(sqr1 + dy * dy);
             vox.distance =  sqr2;
 
-            if (vox.distance > 3) 
+            if (vox.distance > 2.5f) 
                 continue;
 
             if (!( //Y Checks
@@ -188,7 +168,7 @@ public class Player3D {
             //Collision testing
             boolean shouldTestSides = (y < -vox.y + vox.voxel_width + player_height * 2 && y > -vox.y - vox.voxel_width);
             if ( (!shouldTestSides) && !(z >= -vox.z + vox.voxel_width + player_width || z <= -vox.z - vox.voxel_width - player_width)
-                && !(x >= -vox.x + vox.voxel_width + player_width || x <= -vox.x - vox.voxel_width - player_width) ) {
+            && !(x >= -vox.x + vox.voxel_width + player_width || x <= -vox.x - vox.voxel_width - player_width) ) {
                 if (y > -vox.y) {
                     y = -vox.y + player_height * 2 + vox.voxel_width;
                 }
@@ -200,9 +180,14 @@ public class Player3D {
 
                 continue;
             }
+
             if (x >= -vox.x + vox.voxel_width + player_width || x <= -vox.x - vox.voxel_width - player_width
-                &&!(z >= -vox.z + vox.voxel_width + player_width || z <= -vox.z - vox.voxel_width - player_width)
+            &&!(z >= -vox.z + vox.voxel_width + player_width || z <= -vox.z - vox.voxel_width - player_width)
             ) { //Testing x
+                //                 if (y == -vox.y && vox.voxel_width <= 0.6f)
+                //                     jump();
+                //                 System.out.println(y + " " + (-vox.y) + " " + vox.voxel_width);
+
                 if (x >= -vox.x + vox.voxel_width + player_width) {
                     x = -vox.x + vox.voxel_width + player_width;
                 }
@@ -211,10 +196,12 @@ public class Player3D {
                 }
                 vel_x = 0;
             }
-            
             if (z >= -vox.z + vox.voxel_width + player_width || z <= -vox.z - vox.voxel_width - player_width
-                &&!(x >= -vox.x + vox.voxel_width + player_width || x <= -vox.x - vox.voxel_width - player_width)
+            &&!(x >= -vox.x + vox.voxel_width + player_width || x <= -vox.x - vox.voxel_width - player_width)
             ) {
+                //                 if (y == -vox.y && vox.voxel_width <= 0.5f)
+                //                     jump();
+
                 if (z >= -vox.z + vox.voxel_width + player_width) {
                     z = -vox.z + vox.voxel_width + player_width;
                 }
@@ -229,32 +216,26 @@ public class Player3D {
         y += vel_y;
         z += vel_z;
 
-        
         if (!isGrounded) {
             vel_y += 0.01;
         }
 
-        //vel_x = (Math.abs(0 - vel_x) <= hoz_damp)? 0 : vel_x; 
-        //vel_y = (Math.abs(0 - vel_y) <= vert_damp)? 0 : vel_y; 
-        //vel_z = (Math.abs(0 - vel_z) <= hoz_damp)? 0 : vel_z; 
-
-        //vel_x += (vel_x > 0)? -hoz_damp : (vel_x < 0)? hoz_damp : 0;
-        //vel_y += (vel_y > 0)? -vert_damp : (vel_y < 0)? vert_damp : 0;
-        //vel_z += (vel_z > 0)? -hoz_damp : (vel_z < 0)? hoz_damp : 0;
-
-        //vel_x = Math.max(Math.min(vel_x, max_vel_x), -max_vel_x);
         vel_y = Math.max(Math.min(vel_y, max_vel_y * 3), -max_vel_y);
-        //vel_z = Math.max(Math.min(vel_z, max_vel_z), -max_vel_z);
-        
         vel_x = 0;
-        //vel_y = 0;
         vel_z = 0;
-        
+
         if (glfwGetKey(Main3D.window, GLFW_KEY_UP) == GLFW_PRESS) pitch -= turn_speed;
         if (glfwGetKey(Main3D.window, GLFW_KEY_DOWN) == GLFW_PRESS) pitch += turn_speed;
         if (glfwGetKey(Main3D.window, GLFW_KEY_LEFT) == GLFW_PRESS) yaw -= turn_speed;
         if (glfwGetKey(Main3D.window, GLFW_KEY_RIGHT) == GLFW_PRESS) yaw += turn_speed;
 
         pitch = Math.max(-89.0f, Math.min(89.0f, pitch));
+    }
+
+    public void jump() {
+        vel_y += -vert_speed * 3;
+        vel_x *= 1.5f;
+        vel_z *= 1.5f;
+
     }
 }
