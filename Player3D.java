@@ -13,16 +13,16 @@ import org.lwjgl.system.MemoryStack;
 
 public class Player3D {
     public float x, y, z;
-    private float yaw, pitch;
+    private double yaw, pitch;
     private float vel_x, vel_y, vel_z;
 
     private float turn_speed = 2.0f;
 
-    private float hoz_speed  = 0.01f;
+    private float hoz_speed  = 0.05f;
     private float vert_speed = 0.05f;
 
     private float hoz_damp   = 0.005f;
-    private float vert_damp  = 0.005f;
+    private float vert_damp  = 0.002f;
 
     private float max_vel_x  = 0.075f;
     private float max_vel_y  = 0.2f;
@@ -51,13 +51,22 @@ public class Player3D {
         vel_x = 0;
         vel_y = 0;
         vel_z = 0;
+        
+        glfwSetCursorPosCallback(Main3D.window, (window, xpos, ypos) -> {
+            float dx = (float) xpos - WIDTH / 2;
+            float dy = (float) ypos - HEIGHT / 2;
+            yaw += dx * 0.1f;
+            pitch += dy * 0.1f;
+            glfwSetCursorPos(window, WIDTH / 2, HEIGHT / 2);
+        });
+        glfwSetInputMode(Main3D.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 
     public void update() {
         input();
         
-        glRotatef(pitch, 1.0f, 0.0f, 0.0f);  
-        glRotatef(yaw, 0.0f, 1.0f, 0.0f);   
+        glRotatef((float)pitch, 1.0f, 0.0f, 0.0f);  
+        glRotatef((float)yaw, 0.0f, 1.0f, 0.0f);   
 
         glTranslatef(x, y - 1.6f, z); 
     }
@@ -74,27 +83,30 @@ public class Player3D {
         if (glfwGetKey(Main3D.window, GLFW_KEY_W) == GLFW_PRESS) {
             vel_z += Math.cos(radian_yaw) * hoz_speed;
             vel_x += -Math.sin(radian_yaw) * hoz_speed;
-            glfwSetInputMode(Main3D.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
         if (glfwGetKey(Main3D.window, GLFW_KEY_S) == GLFW_PRESS) {
-            vel_z += -Math.cos(radian_yaw) * hoz_speed;
-            vel_x += Math.sin(radian_yaw) * hoz_speed;
-            glfwSetInputMode(Main3D.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            vel_z += -Math.cos(radian_yaw) * hoz_speed * 0.7f;
+            vel_x += Math.sin(radian_yaw) * hoz_speed * 0.7f;
         }
-
         if (glfwGetKey(Main3D.window, GLFW_KEY_A) == GLFW_PRESS) {
-            vel_z += Math.sin(radian_yaw) * hoz_speed;  
-            vel_x += Math.cos(radian_yaw) * hoz_speed; 
-            glfwSetInputMode(Main3D.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            vel_z += Math.sin(radian_yaw) * hoz_speed * 0.95f;  
+            vel_x += Math.cos(radian_yaw) * hoz_speed * 0.95f; 
         }
-
         if (glfwGetKey(Main3D.window, GLFW_KEY_D) == GLFW_PRESS) {
-            vel_z += -Math.sin(radian_yaw) * hoz_speed; 
-            vel_x += -Math.cos(radian_yaw) * hoz_speed;
-            glfwSetInputMode(Main3D.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            vel_z += -Math.sin(radian_yaw) * hoz_speed * 0.95f; 
+            vel_x += -Math.cos(radian_yaw) * hoz_speed * 0.95f;
         }
+        if (glfwGetKey(Main3D.window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+            vel_z *= 1.5f;
+            vel_x *= 1.5f;
+        }
+        
+        
+        
         if (glfwGetKey(Main3D.window, GLFW_KEY_SPACE) == GLFW_PRESS && isGrounded) {
-            vel_y += -vert_speed * 4;
+            vel_y += -vert_speed * 3;
+            vel_x *= 1.2f;
+            vel_z *= 1.2f;
         }
         if (glfwGetKey(Main3D.window, GLFW_KEY_TAB) == GLFW_PRESS) {
             vel_y += -vert_speed;
@@ -175,8 +187,8 @@ public class Player3D {
 
             //Collision testing
             boolean shouldTestSides = (y < -vox.y + vox.voxel_width + player_height * 2 && y > -vox.y - vox.voxel_width);
-            if (!shouldTestSides) {
-                //We are testing y positions now.
+            if ( (!shouldTestSides) && !(z >= -vox.z + vox.voxel_width + player_width || z <= -vox.z - vox.voxel_width - player_width)
+                && !(x >= -vox.x + vox.voxel_width + player_width || x <= -vox.x - vox.voxel_width - player_width) ) {
                 if (y > -vox.y) {
                     y = -vox.y + player_height * 2 + vox.voxel_width;
                 }
@@ -186,8 +198,11 @@ public class Player3D {
                 }
                 vel_y = 0;
 
+                continue;
             }
-            else if (x >= -vox.x + vox.voxel_width + player_width || x <= -vox.x - vox.voxel_width - player_width) { //Testing x
+            if (x >= -vox.x + vox.voxel_width + player_width || x <= -vox.x - vox.voxel_width - player_width
+                &&!(z >= -vox.z + vox.voxel_width + player_width || z <= -vox.z - vox.voxel_width - player_width)
+            ) { //Testing x
                 if (x >= -vox.x + vox.voxel_width + player_width) {
                     x = -vox.x + vox.voxel_width + player_width;
                 }
@@ -196,7 +211,10 @@ public class Player3D {
                 }
                 vel_x = 0;
             }
-            else {
+            
+            if (z >= -vox.z + vox.voxel_width + player_width || z <= -vox.z - vox.voxel_width - player_width
+                &&!(x >= -vox.x + vox.voxel_width + player_width || x <= -vox.x - vox.voxel_width - player_width)
+            ) {
                 if (z >= -vox.z + vox.voxel_width + player_width) {
                     z = -vox.z + vox.voxel_width + player_width;
                 }
@@ -216,17 +234,21 @@ public class Player3D {
             vel_y += 0.01;
         }
 
-        vel_x = (Math.abs(0 - vel_x) <= hoz_damp)? 0 : vel_x; 
-        vel_y = (Math.abs(0 - vel_y) <= vert_damp)? 0 : vel_y; 
-        vel_z = (Math.abs(0 - vel_z) <= hoz_damp)? 0 : vel_z; 
+        //vel_x = (Math.abs(0 - vel_x) <= hoz_damp)? 0 : vel_x; 
+        //vel_y = (Math.abs(0 - vel_y) <= vert_damp)? 0 : vel_y; 
+        //vel_z = (Math.abs(0 - vel_z) <= hoz_damp)? 0 : vel_z; 
 
-        vel_x += (vel_x > 0)? -hoz_damp : (vel_x < 0)? hoz_damp : 0;
-        vel_y += (vel_y > 0)? -vert_damp : (vel_y < 0)? vert_damp : 0;
-        vel_z += (vel_z > 0)? -hoz_damp : (vel_z < 0)? hoz_damp : 0;
+        //vel_x += (vel_x > 0)? -hoz_damp : (vel_x < 0)? hoz_damp : 0;
+        //vel_y += (vel_y > 0)? -vert_damp : (vel_y < 0)? vert_damp : 0;
+        //vel_z += (vel_z > 0)? -hoz_damp : (vel_z < 0)? hoz_damp : 0;
 
-        vel_x = Math.max(Math.min(vel_x, max_vel_x), -max_vel_x);
-        vel_y = Math.max(Math.min(vel_y, max_vel_y), -max_vel_y);
-        vel_z = Math.max(Math.min(vel_z, max_vel_z), -max_vel_z);
+        //vel_x = Math.max(Math.min(vel_x, max_vel_x), -max_vel_x);
+        vel_y = Math.max(Math.min(vel_y, max_vel_y * 3), -max_vel_y);
+        //vel_z = Math.max(Math.min(vel_z, max_vel_z), -max_vel_z);
+        
+        vel_x = 0;
+        //vel_y = 0;
+        vel_z = 0;
         
         if (glfwGetKey(Main3D.window, GLFW_KEY_UP) == GLFW_PRESS) pitch -= turn_speed;
         if (glfwGetKey(Main3D.window, GLFW_KEY_DOWN) == GLFW_PRESS) pitch += turn_speed;
